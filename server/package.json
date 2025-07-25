@@ -1,0 +1,30 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "dist/broker.js",
+  "type": "module",
+  "scripts": {
+    "dev": "ts-node src/broker.ts",
+    "build": "tsc",
+    "start": "node dist/broker.js",
+    "build-client": "cd ../client && npm install && npm run build",
+    "start-prod": "npm run build-client && npm run build && npm run start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "csv-writer": "^1.6.0",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "mqtt": "^5.13.3",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

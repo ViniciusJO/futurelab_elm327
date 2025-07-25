@@ -1,0 +1,16 @@
+[Unit]
+Description=FutureLab APP
+Requires=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+WorkingDirectory=/root/mqtt-server/server
+ExecStart=npm run start
+
+[Install]
+WantedBy=multi-user.target
+Alias=fl.service
