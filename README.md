@@ -5,7 +5,9 @@ Persistencia e visualizacao de dados de GPS e OBD2
 Instalacao:
 
 ```sh
-cd client
+git clone https://github.com/ViniciusJO/futurelab_elm327.git
+
+cd futurelab_elm327/client
 npm install
 
 cd ../server
