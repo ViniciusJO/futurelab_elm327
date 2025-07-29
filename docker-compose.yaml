@@ -1,0 +1,23 @@
+version: '3'
+services:
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto
+    ports:
+      - "1883:1883" # MQTT default port
+      - "9001:9001" # WebSockets port
+    restart: unless-stopped
+  mqsv:
+    build: .
+    ports:
+      - "3500:3500"
+    volumes:
+      - ./out:/usr/src/app/out
+    environment:
+      - MQTT_URL=mqtt://mosquitto:1883
+      - MQTT_PORT=1883
+      - MQTT_TOPIC=elm327/test
+      - OUT_DIR=../out
+      - CSV_FILE_NAME=data.csv
+      - EXPRESS_PORT=3500
+

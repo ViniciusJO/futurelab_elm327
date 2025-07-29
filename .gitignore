@@ -2,3 +2,5 @@
 **/dist
 **/*.csv
 **/*.sqlite
+**/.mqtt/
+**/out/

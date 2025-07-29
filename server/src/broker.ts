@@ -12,18 +12,19 @@ dotenv.config();
 const MQTT_URL = process.env.MQTT_URL || "mqtt://localhost:1883";
 const MQTT_PORT = process.env.MQTT_PORT || 1883;
 const MQTT_TOPIC = process.env.MQTT_TOPIC || 'can/messages';
-const CSV_FILE = process.env.CSV_FILE || 'data.csv';
+const CSV_FILE_NAME = process.env.CSV_FILE_NAME || 'data.csv';
+const OUT_DIR = process.env.OUT_DIR || '../out';
 const EXPRESS_PORT = process.env.EXPRESS_PORT || 3000
 
 // Setup MQTT conection
 const client = mqtt.connect(MQTT_URL);
 
 // Setup SQLite database
-const db = new sqlite3.Database('data.sqlite');
+const db = new sqlite3.Database(path.join(OUT_DIR, 'data.sqlite'));
 
 // Setup CSV writer
 const csvWriter = createObjectCsvWriter({
-  path: CSV_FILE,
+  path: path.join(OUT_DIR, CSV_FILE_NAME),
   header: [
     { id: 'speed', title: 'Speed' },
     { id: 'rpm', title: 'RPM' },
