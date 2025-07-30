@@ -102,7 +102,15 @@ async function main() {
 
         state = { ...state, ...parsed };
 
-        if(origin && origin == `esp`) arrived[0] = true;
+        if(origin && origin == `esp`) {
+          arrived[0] = true;
+          if(
+            rpm != undefined &&
+            speed != undefined &&
+            pedal_position != undefined &&
+            fuel_usage != undefined
+          ) arrived[1] = true;
+        }
         else if(origin && origin == `python`) arrived[1] = true;
 
         if(arrived.reduce((a,e) => a && e, true)) {
