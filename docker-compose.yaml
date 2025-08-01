@@ -12,6 +12,7 @@ services:
     ports:
       - "3500:3500"
     container_name: moblab_server
+    mem_limit: 1G
     volumes:
       - ./out:/usr/src/app/out
     environment:
