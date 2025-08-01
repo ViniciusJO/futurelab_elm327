@@ -3,6 +3,8 @@ import LiveChart from "./LiveChart";
 
 type Reading = {
   timestamp: string;
+  accel_x: number;
+  accel_y: number;
   speed: number;
   rpm: number;
   pedal_position: number;
@@ -19,6 +21,7 @@ export default function App() {
       try {
         const res = await fetch("/readings", { cache: "no-store" });
         const json: Reading[] = await res.json();
+        console.log(json);
         setData(json.reverse()); // do mais antigo ao mais recente
       } catch (err) {
         console.error("Erro ao buscar dados:", err);
@@ -34,6 +37,21 @@ export default function App() {
   return (
     <div style={{ padding: 20 }}>
       <h1>Sensor Monitor</h1>
+      <LiveChart
+        data={data}
+        dataKey="accel_x"
+        color="#8884d8"
+        name="Accel_X"
+        title="Aceleração X (acelerômetro)"
+      />
+
+      <LiveChart
+        data={data}
+        dataKey="accel_y"
+        color="#8884d8"
+        name="Accel_Y"
+        title="Aceleração Y (acelerômetro)"
+      />
 
       <LiveChart
         data={data}

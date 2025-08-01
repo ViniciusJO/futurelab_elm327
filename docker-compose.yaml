@@ -8,10 +8,10 @@ services:
       - "9001:9001" # WebSockets port
     restart: unless-stopped
   mqsv:
-    container_name: moblab_server
     build: .
     ports:
       - "3500:3500"
+    container_name: moblab_server
     volumes:
       - ./out:/usr/src/app/out
     environment:
