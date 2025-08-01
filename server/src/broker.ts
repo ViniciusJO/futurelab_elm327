@@ -10,8 +10,7 @@ import { fileURLToPath } from "url";
 // Recebe as configurações das variáveis de ambiente, ou usa um padrão.
 dotenv.config();
 const MQTT_URL = process.env.MQTT_URL || "mqtt://localhost:1883";
-const MQTT_PORT = process.env.MQTT_PORT || 1883;
-const MQTT_TOPIC = process.env.MQTT_TOPIC || 'can/messages';
+const MQTT_TOPIC = process.env.MQTT_TOPIC || 'elm327/messages';
 const CSV_FILE_NAME = process.env.CSV_FILE_NAME || 'data.csv';
 const OUT_DIR = process.env.OUT_DIR || '../out';
 const EXPRESS_PORT = process.env.EXPRESS_PORT || 3000
@@ -26,6 +25,7 @@ const db = new sqlite3.Database(path.join(OUT_DIR, 'data.sqlite'));
 const csvWriter = createObjectCsvWriter({
   path: path.join(OUT_DIR, CSV_FILE_NAME),
   header: [
+    { id: 'timestamp', title: 'Timestamp' },
     { id: 'speed', title: 'Speed' },
     { id: 'rpm', title: 'RPM' },
     { id: 'pedal_position', title: 'PedalPosition' },
@@ -44,9 +44,7 @@ async function saveToCSV(entry: {
   fuel_usage: number,
   accel_x: number,
   accel_y: number
-}) {
-  await csvWriter.writeRecords([entry]);
-}
+}) { await csvWriter.writeRecords([{ ...entry, timestamp: (new Date()).toISOString() }]); }
 
 async function main() {
   // Create SQLite table to store messages
@@ -95,14 +93,19 @@ async function main() {
         const { origin, speed, rpm, pedal_position, fuel_usage, accel_x, accel_y } = parsed;
 
         // Check if all required fields are present and valid
-        if (!origin || typeof origin != `string` || [speed, rpm, pedal_position, fuel_usage, accel_x, accel_y].some(v => v == null || isNaN(v))) {
-          console.log("Invalid or null data:", parsed);
-          return;
-        }
+        // if (!origin || typeof origin != `string` || [speed, rpm, pedal_position, fuel_usage, accel_x, accel_y].some(v => v == null || isNaN(v))) {
+        //   console.log("Invalid or null data:", parsed);
+        //   return;
+        // }
 
         state = { ...state, ...parsed };
 
         if(origin && origin == `esp`) {
+          if([accel_x, accel_y].some(v => v == null || isNaN(v))) {
+            console.log(`Invalid or null data: ${parsed}`);
+            return;
+          }
+
           arrived[0] = true;
           if(
             rpm != undefined &&
@@ -111,7 +114,13 @@ async function main() {
             fuel_usage != undefined
           ) arrived[1] = true;
         }
-        else if(origin && origin == `python`) arrived[1] = true;
+        else if(origin && origin == `python`) {
+          if ([speed, rpm, pedal_position, fuel_usage].some(v => v == null || isNaN(v))) {
+            console.log(`Invalid or null data: ${parsed}`);
+            return;
+          }
+          arrived[1] = true;
+        }
 
         if(arrived.reduce((a,e) => a && e, true)) {
           arrived[0] = arrived[1] = false;
@@ -135,7 +144,7 @@ async function main() {
             state.accel_x,
             state.accel_y,
           );
-          console.log("Message saved:", parsed);
+          console.log(`Message saved: ${state}`);
         }
 
       } catch (err) { console.error("Failed to process message:", err); }
@@ -147,7 +156,7 @@ async function main() {
   app.use(express.json());
 
   // TODO: Configurar rotas para obter dados do sqlite
-  app.get("/readings", (req, res) => {
+  app.get("/readings", (_req, res) => {
     const query = `
       SELECT * FROM messages
       ORDER BY timestamp DESC
@@ -170,7 +179,7 @@ async function main() {
   const __dirname = path.dirname(__filename);
   
   app.use(express.static(path.join(__dirname, '../../client/dist')));
-  app.get("/", (req, res) => {
+  app.get("/", (_, res) => {
     res.sendFile(path.join(__dirname, "../../client/dist", "index.html"));
   });
 

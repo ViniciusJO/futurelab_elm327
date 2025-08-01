@@ -8,6 +8,7 @@ services:
       - "9001:9001" # WebSockets port
     restart: unless-stopped
   mqsv:
+    container_name: moblab_server
     build: .
     ports:
       - "3500:3500"
@@ -15,7 +16,6 @@ services:
       - ./out:/usr/src/app/out
     environment:
       - MQTT_URL=mqtt://mosquitto:1883
-      - MQTT_PORT=1883
       - MQTT_TOPIC=elm327/test
       - OUT_DIR=../out
       - CSV_FILE_NAME=data.csv
